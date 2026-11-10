@@ -1,5 +1,8 @@
 # Minimum CMake version.
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.16)
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 
 ### Project information #######################################################
@@ -59,9 +62,21 @@ endif()
 ### Packages ##################################################################
 # Find any required packages.
 find_package(MPI REQUIRED)
-find_package(Boost COMPONENTS
-  log_setup log thread program_options system REQUIRED)
-add_definitions(-DBOOST_LOG_DYN_LINK)
+option(PARKWAY_FETCH_BOOST "Download and build project-local Boost" ON)
+if(PARKWAY_FETCH_BOOST)
+  include(FetchContent)
+  set(BOOST_INCLUDE_LIBRARIES log thread program_options system)
+  FetchContent_Declare(Boost
+    URL https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.tar.xz
+    URL_HASH SHA256=f48b48390380cfb94a629872346e3a81370dc498896f16019ade727ab72eb1ec
+  )
+  FetchContent_MakeAvailable(Boost)
+else()
+  find_package(Boost 1.70 CONFIG REQUIRED COMPONENTS
+    log_setup log thread program_options)
+endif()
+set(PARKWAY_BOOST_LIBRARIES Boost::log_setup Boost::log Boost::thread
+    Boost::program_options)
 
 # Add extra cmake scripts to the module path.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${MAINFOLDER}/cmake")

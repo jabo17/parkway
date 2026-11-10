@@ -47,7 +47,7 @@ void set_log_file(const std::string &basename, const std::size_t rank) {
   boost::log::register_simple_formatter_factory
     <logging::trivial::severity_level, char>("Severity");
 
-  std::string rank_str = boost::lexical_cast<std::string>(rank);
+  std::string rank_str = std::to_string(rank);
 
   boost::log::add_file_log(
     keywords::file_name = basename + "_p" + rank_str + "__%Y-%m-%d__%H%M.log",

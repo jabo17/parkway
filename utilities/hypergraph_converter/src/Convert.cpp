@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
   }
 
   if (code == 9) {
-    if (numP < 2) {
-      cout << "number of processors must be greater than 1" << endl;
+    if (numP < 1) {
+      cout << "number of processors must be at least 1" << endl;
       exit(1);
     }
 
