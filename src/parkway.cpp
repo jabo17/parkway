@@ -118,7 +118,15 @@ int k_way_partition(const parkway::options &options, MPI_Comm comm) {
   controller->set_hypergraph(hgraph);
   controller->set_prescribed_partition(shuffle_file, comm);
   controller->set_weight_constraints(comm);
+  // Preserve original weights before the timed routine can shuffle vertices.
+  const auto weights = hgraph->vertex_weights();
+  ds::dynamic_array<int> original_weights(hgraph->number_of_vertices());
+  for (int v = 0; v < hgraph->number_of_vertices(); ++v) {
+    original_weights[v] = weights[v];
+  }
   controller->run(comm);
+  // run() has already stopped all internal partitioning timers.
+  controller->report_balance(original_weights, comm);
 
   if (options.get<bool>("write-partitions-to-file")) {
     char part_file[512];

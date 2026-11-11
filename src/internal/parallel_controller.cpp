@@ -9,6 +9,7 @@
 // ###
 #include "internal/parallel_controller.hpp"
 #include "utility/logging.hpp"
+#include <algorithm>
 
 namespace parkway {
 namespace parallel {
@@ -242,6 +243,44 @@ void controller::partition_to_file(const char *filename, MPI_Comm comm) const {
 void controller::copy_out_partition(int numVertices, int *pVector) const {
   for (int i = 0; i < numVertices; ++i)
     pVector[i] = best_partition_[i];
+}
+
+void controller::report_balance(
+    const ds::dynamic_array<int> &original_weights, MPI_Comm comm) const {
+  // best_partition_ is in the original vertex ownership/order, even if the
+  // working hypergraph was shuffled. The last two slots track invalid labels
+  // and total weight. No hyperedge incidence is needed.
+  ds::dynamic_array<long long> local(total_number_of_parts_ + 2, 0);
+  ds::dynamic_array<long long> global(total_number_of_parts_ + 2, 0);
+  for (std::size_t v = 0; v < original_weights.size(); ++v) {
+    local[total_number_of_parts_ + 1] += original_weights[v];
+    if (v >= best_partition_.size() || best_partition_[v] < 0 ||
+        best_partition_[v] >= total_number_of_parts_) {
+      ++local[total_number_of_parts_];
+    } else {
+      local[best_partition_[v]] += original_weights[v];
+    }
+  }
+  MPI_Reduce(local.data(), global.data(), total_number_of_parts_ + 2,
+             MPI_LONG_LONG_INT, MPI_SUM, 0, comm);
+  if (rank_ != 0) return;
+
+  const long long total = global[total_number_of_parts_ + 1];
+  if (global[total_number_of_parts_] != 0 || total <= 0) {
+    info("BALANCE valid_partition=false invalid_vertices=%lld total_weight=%lld\n",
+         global[total_number_of_parts_], total);
+    return;
+  }
+  long long maximum = 0;
+  for (int part = 0; part < total_number_of_parts_; ++part) {
+    maximum = std::max(maximum, global[part]);
+  }
+  const double imbalance = static_cast<double>(maximum) /
+      (static_cast<double>(total) / total_number_of_parts_) - 1.0;
+  info("BALANCE valid_partition=true total_weight=%lld max_part_weight=%lld "
+       "max_allowed_weight=%i imbalance=%.9g balanced=%s\n",
+       total, maximum, maximum_part_weight_, imbalance,
+       maximum <= maximum_part_weight_ ? "true" : "false");
 }
 
 void controller::set_weight_constraints(MPI_Comm comm) {

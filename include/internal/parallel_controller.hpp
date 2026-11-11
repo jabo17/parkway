@@ -111,6 +111,7 @@ class controller : public parkway::global_communicator {
   void store_best_partition(int numV, const dynamic_array<int> array, MPI_Comm comm);
   void partition_to_file(const char *filename, MPI_Comm comm) const;
   void copy_out_partition(int numVertices, int *pVector) const;
+  void report_balance(const ds::dynamic_array<int> &original_weights, MPI_Comm comm) const;
   void display_partition_info(MPI_Comm comm) const;
 };
 

@@ -30,7 +30,7 @@ void FromBinConverter::readPreamble(ifstream &in_stream) {
   numHedges = inPreamble[1];
   numPins = inPreamble[2];
 
-  vWeights.reserve(numVerts);
+  vWeights.resize(numVerts);
 }
 
 void FromBinConverter::readInVertexWts(ifstream &in_stream) {
@@ -50,7 +50,7 @@ void FromBinConverter::readInVertexWts(ifstream &in_stream) {
 
 void FromBinConverter::readInHedgeData(ifstream &in_stream, int &inStream) {
   in_stream.read((char *)(&dataLength), sizeof(int));
-  hEdgeData.reserve(dataLength);
+  hEdgeData.resize(dataLength);
   in_stream.read((char *)(hEdgeData.data()), sizeof(int) * dataLength);
   inStream = in_stream.tellg();
 }

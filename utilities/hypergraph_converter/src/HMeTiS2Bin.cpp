@@ -170,12 +170,12 @@ int HMeTiS2Bin::processHedgeLine(char *line, int &numP) {
   StringUtils::skipNonDigits(line, '%');
 
   if (*line) {
-    hEdgeData.assign(dataLength++, 0);
+    hEdgeData[dataLength++] = 0;
 
     if (wtsOnHedges)
-      hEdgeData.assign(dataLength++, StringUtils::stringToDigit(line));
+      hEdgeData[dataLength++] = StringUtils::stringToDigit(line);
     else
-      hEdgeData.assign(dataLength++, 1);
+      hEdgeData[dataLength++] = 1;
 
     if (!*line)
       cout << "warning - hyperedge with no vertices" << endl;
@@ -191,7 +191,7 @@ int HMeTiS2Bin::processHedgeLine(char *line, int &numP) {
           exit(1);
         }
 
-        hEdgeData.assign(dataLength++, pin);
+        hEdgeData[dataLength++] = pin;
         ++numP;
       }
     }
@@ -227,7 +227,7 @@ int HMeTiS2Bin::processVertLine(char *line) {
   StringUtils::skipNonDigits(line, '%');
 
   if (*line) {
-    vWeights.assign(numVerts++, StringUtils::stringToDigit(line));
+    vWeights[numVerts++] = StringUtils::stringToDigit(line);
     return 1;
   } else
     return 0;

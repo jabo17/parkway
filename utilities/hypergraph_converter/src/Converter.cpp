@@ -33,7 +33,7 @@ void Converter::resetConverterParameters() {
 
 void Converter::addLengthParameter() {
   locOfLengthParam = dataLength;
-  hEdgeData.assign(dataLength++, -1);
+  hEdgeData[dataLength++] = -1;
 }
 
 #endif

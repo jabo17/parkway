@@ -18,7 +18,7 @@ int TextFileReader::maxLength = 10000000;
 int TextFileReader::maxPinsInChunk = 10000000;
 
 TextFileReader::TextFileReader() {
-  buffer.reserve(maxLength);
+  buffer.resize(maxLength);
   length = 0;
 }
 

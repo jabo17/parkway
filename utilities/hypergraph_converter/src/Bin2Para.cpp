@@ -113,8 +113,8 @@ void Bin2Para::buildParaFile(ifstream &in_stream, ofstream &out_stream,
     for (; inData < dataLength;) {
       chunkLength = hEdgeData[inData];
 
-      outHedgeData.assign(outLen++, chunkLength);
-      outHedgeData.assign(outLen++, hEdgeData[inData + 1]);
+      outHedgeData[outLen++] = chunkLength;
+      outHedgeData[outLen++] = hEdgeData[inData + 1];
 
       for (i = 2; i < chunkLength; ++i) {
         pin = hEdgeData[inData + i];
@@ -124,7 +124,7 @@ void Bin2Para::buildParaFile(ifstream &in_stream, ofstream &out_stream,
           exit(1);
         }
 
-        outHedgeData.assign(outLen++, pin);
+        outHedgeData[outLen++] = pin;
       }
 
       inData += chunkLength;
